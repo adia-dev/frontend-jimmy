@@ -60,6 +60,9 @@ kind: Ingress
 metadata:
   name: frontend-demo-ingress
   namespace: demo
+  annotations:
+    # Ajouter une annotation pour indiquer l'issuer à utiliser. Il faut mettre le name de votre cert-manager
+    cert-manager.io/issuer: nameOfYourIssuer
 spec:
   # Récupérer le nom de la classe ingress ici
   ingressClassName: nginx-demo
