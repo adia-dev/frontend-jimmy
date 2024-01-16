@@ -1,0 +1,14 @@
+namespace: "demo"
+deployment:
+  replicaCount: 2
+  imageTag: "latest"
+  port: 80
+  appName: frontend-demo
+
+service:
+  port: 4566
+
+ingress:
+  className: nginx-frontend-demo
+  clusterIssuerName: letsencrypt-staging-cluster-issuer
+  hostname: frontend.demo.jbienvenu.fr

@@ -1,0 +1,84 @@
+# Pour déployer: kubectl --kubeconfig votre-conf.yaml apply -f deployment.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: {{ .Values.namespace }}
+  name: {{ .Release.Name }}-deployment
+  labels:
+    demo.app: {{ .Values.deployment.appName }}
+spec:
+  replicas: {{  .Values.deployment.replicaCount }}
+  selector:
+    matchLabels:
+      demo.app: {{ .Values.deployment.appName }}
+  template:
+    metadata:
+      labels:
+        demo.app: {{ .Values.deployment.appName }}
+    spec:
+      containers:
+        - name: frontend
+          image: jimbienvenu/frontend-demo:{{ .Values.deployment.imageTag }}
+          ports:
+            - containerPort: {{ .Values.deployment.port }}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: {{ .Values.namespace }}
+  name: {{ .Release.Name }}-service
+spec:
+  selector:
+    demo.app: {{ .Values.deployment.appName }}
+  ports:
+    - protocol: TCP
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.deployment.port }}
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/component: controller
+  # Mettre un nom unique pour la classe ingress
+  name: {{ .Values.ingress.className }}
+  annotations:
+    ingressclass.kubernetes.io/is-default-class: "true"
+spec:
+  controller: k8s.io/ingress-nginx
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-ingress
+  namespace: {{ .Values.namespace }}
+  annotations:
+    # Ajouter une annotation pour indiquer l'issuer à utiliser. letsencrypt-staging-cluster-issuer OU letsencrypt-cluster-issuer
+    cert-manager.io/cluster-issuer: {{ .Values.ingress.clusterIssuerName }}
+spec:
+  # Récupérer le nom de la classe ingress ici
+  ingressClassName: {{ .Values.ingress.className }}
+  tls:
+    - hosts:
+        - {{ .Values.ingress.hostname }}
+      secretName: frontend-demo-tls
+  rules:
+    - host: {{ .Values.ingress.hostname }}
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: {{ .Release.Name }}-service
+                port:
+                  number: {{ .Values.service.port }}
+
