@@ -3,23 +3,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: demo
-  name: frontend-demo-deployment
+  namespace: adia
+  name: frontend-deployment
   labels:
-    demo.app: frontend-demo
+    adia.app: frontend
 spec:
   replicas: 2
   selector:
     matchLabels:
-      demo.app: frontend-demo
+      adia.app: frontend
   template:
     metadata:
       labels:
-        demo.app: frontend-demo
+        adia.app: frontend
     spec:
       containers:
         - name: frontend
-          image: jimbienvenu/frontend-demo
+          image: adiadev/frontend
           ports:
             - containerPort: 80
 
@@ -28,11 +28,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: demo
-  name: frontend-demo-service
+  namespace: adia
+  name: frontend-service
 spec:
   selector:
-    demo.app: frontend-demo
+    adia.app: frontend
   ports:
     - protocol: TCP
       port: 4566
@@ -43,11 +43,11 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: IngressClass
 metadata:
-  namespace: demo
+  namespace: adia
   labels:
     app.kubernetes.io/component: controller
   # Mettre un nom unique pour la classe ingress
-  name: nginx-demo
+  name: nginx-adia
   annotations:
     ingressclass.kubernetes.io/is-default-class: "true"
 spec:
@@ -58,28 +58,28 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: frontend-demo-ingress
-  namespace: demo
+  name: frontend-ingress
+  namespace: adia
   annotations:
     # Ajouter une annotation pour indiquer l'issuer à utiliser. letsencrypt-staging-cluster-issuer OU letsencrypt-cluster-issuer
     # Il s'agit d'issuers globaux que j'ai rajouté sur le cluster, pas besoin de créer votre propre cert-manager
     cert-manager.io/cluster-issuer: letsencrypt-staging-cluster-issuer
 spec:
   # Récupérer le nom de la classe ingress ici
-  ingressClassName: nginx-demo
+  ingressClassName: nginx-adia
   tls:
     - hosts:
-        - frontend.demo.jbienvenu.fr
-      secretName: frontend-demo-tls
+        - frontend.4al2.adia.jbienvenu.fr
+      secretName: frontend-tls
   rules:
-    - host: frontend.demo.jbienvenu.fr
+    - host: frontend.4al2.adia.jbienvenu.fr
       http:
         paths:
           - pathType: Prefix
             path: /
             backend:
               service:
-                name: frontend-demo-service
+                name: frontend-service
                 port:
                   number: 4566
 
