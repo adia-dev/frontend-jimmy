@@ -6,16 +6,16 @@ metadata:
   namespace: adia
   name: frontend-deployment
   labels:
-    adia.app: frontend
+    demo.app: frontend
 spec:
   replicas: 2
   selector:
     matchLabels:
-      adia.app: frontend
+      demo.app: frontend
   template:
     metadata:
       labels:
-        adia.app: frontend
+        demo.app: frontend
     spec:
       containers:
         - name: frontend
@@ -32,7 +32,7 @@ metadata:
   name: frontend-service
 spec:
   selector:
-    adia.app: frontend
+    demo.app: frontend
   ports:
     - protocol: TCP
       port: 4566
