@@ -1,25 +1,24 @@
 # Pour déployer: kubectl --kubeconfig votre-conf.yaml apply -f deployment.yaml
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: adia
-  name: frontend-deployment
+  name: frontend-demo-deployment-adia
   labels:
-    demo.app: frontend
+    demo.app: frontend-demo-adia
 spec:
   replicas: 2
   selector:
     matchLabels:
-      demo.app: frontend
+      demo.app: frontend-demo-adia
   template:
     metadata:
       labels:
-        demo.app: frontend
+        demo.app: frontend-demo-adia
     spec:
       containers:
         - name: frontend
-          image: adiadev/frontend
+          image: adiadev/frontend:latest
           ports:
             - containerPort: 80
 
@@ -29,10 +28,10 @@ apiVersion: v1
 kind: Service
 metadata:
   namespace: adia
-  name: frontend-service
+  name: frontend-demo-adia
 spec:
   selector:
-    demo.app: frontend
+    demo.app: frontend-demo-adia
   ports:
     - protocol: TCP
       port: 4566
@@ -47,7 +46,7 @@ metadata:
   labels:
     app.kubernetes.io/component: controller
   # Mettre un nom unique pour la classe ingress
-  name: nginx-adia
+  name: nginx-demo-adia-frontend
   annotations:
     ingressclass.kubernetes.io/is-default-class: "true"
 spec:
@@ -58,19 +57,17 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: frontend-ingress
+  name: frontend-demo-ingress
   namespace: adia
   annotations:
-    # Ajouter une annotation pour indiquer l'issuer à utiliser. letsencrypt-staging-cluster-issuer OU letsencrypt-cluster-issuer
-    # Il s'agit d'issuers globaux que j'ai rajouté sur le cluster, pas besoin de créer votre propre cert-manager
     cert-manager.io/cluster-issuer: letsencrypt-staging-cluster-issuer
 spec:
   # Récupérer le nom de la classe ingress ici
-  ingressClassName: nginx-adia
+  ingressClassName: nginx-demo-adia-frontend
   tls:
     - hosts:
         - frontend.4al2.adia.jbienvenu.fr
-      secretName: frontend-tls
+      secretName: frontend-demo-tls
   rules:
     - host: frontend.4al2.adia.jbienvenu.fr
       http:
@@ -79,7 +76,8 @@ spec:
             path: /
             backend:
               service:
-                name: frontend-service
+                name: frontend-demo-adia
                 port:
                   number: 4566
 
+#51.159.205.16
