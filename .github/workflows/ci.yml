@@ -29,6 +29,6 @@ jobs:
       - name: Build
         run: npm run build --if-present
       - name: Release
-        run: npx semantic-release
+        run: npx semantic-release || true
         env:
           GITHUB_TOKEN: ${{ secrets.ACTIONS_RELEASE_ACCESS_TOKEN }}
